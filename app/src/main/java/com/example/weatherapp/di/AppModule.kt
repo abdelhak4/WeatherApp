@@ -4,7 +4,6 @@ import android.app.Application
 import com.example.weatherapp.data.remote.WeatherApi
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,10 +15,10 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object appModule {
+object AppModule {
     @Provides
     @Singleton
-    fun provideSingletonApi(): WeatherApi {
+    fun provideWeatherApi(): WeatherApi {
 
         return Retrofit.Builder()
             .baseUrl("https://api.open-meteo.com/")
