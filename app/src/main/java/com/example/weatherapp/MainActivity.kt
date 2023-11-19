@@ -2,8 +2,6 @@ package com.example.weatherapp
 
 
 import android.Manifest
-import android.content.res.Configuration
-import android.graphics.fonts.Font
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,25 +19,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.LocationOn
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -52,13 +38,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.weatherapp.presentation.TodayCard
 import com.example.weatherapp.presentation.WeatherState
 import com.example.weatherapp.presentation.WeatherViewModel
 import com.example.weatherapp.presentation.ui.theme.WeatherAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.UiMode
-import com.example.weatherapp.presentation.TodayCard
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -115,39 +99,66 @@ fun WeatherScreen(
                 )
             )
     ) {
-        state.weatherInfo?.currentWeatherData?.let { data ->
+        state.weatherInfo?.let { data ->
             Column(
-                modifier = Modifier,
-                horizontalAlignment = CenterHorizontally,
-//                verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = data.weatherType.iconRes),
+                    painter = painterResource(id = data.currentWeatherData?.weatherType?.iconRes!!),
                     contentDescription = null,
                     contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .width(200.dp)
-                        .padding(24.dp)
+                        .padding(top = 59.dp)
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "${data.temperatureCelsius}°C",
+                    text = "${data.currentWeatherData.temperatureCelsius}°",
                     fontSize = 60.sp,
                     color = Color.White,
                     fontWeight = FontWeight(600),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(80.dp)
+//                modifier = Modifier.padding(80.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
-//                Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(12.dp))
-//                ) {
-//
-//                }
-
+//                modifier = Modifier.padding(80.dp)
+                Text(
+                    text = data.currentWeatherData.weatherType.weatherDesc,
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight(400),
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Box(
+                    modifier = Modifier
+                        .width(343.dp)
+                        .height(47.dp)
+                        .background(
+                            color = Color(0xff001026).copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(size = 20.dp)
+                        )
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = CenterVertically,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Frame(text = "${data.currentWeatherData.pressure }%", id = R.drawable.rain)
+                        Frame(
+                            text = "${data.currentWeatherData.rain}%",
+                            id = R.drawable.humidity
+                        )
+                        Frame(
+                            text = "${data.currentWeatherData.windSpeed} km/h",
+                            id = R.drawable.wind
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                TodayCard()
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -173,8 +184,7 @@ fun WeatherAppPrev() {
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = CenterHorizontally,
-//                verticalArrangement = Arrangement.Center
+            horizontalAlignment = CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_cloudy),
@@ -183,14 +193,7 @@ fun WeatherAppPrev() {
                 modifier = Modifier
                     .width(200.dp)
                     .padding(top = 59.dp)
-//                    .shadow(
-//                        elevation = 30.dp,
-//                        spotColor = Color(0x0D000000),
-//                        ambientColor = Color(0x0D000000)
-//                    )
             )
-
-//            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "20°",
                 fontSize = 60.sp,
