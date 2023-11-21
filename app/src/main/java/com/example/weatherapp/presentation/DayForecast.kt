@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.domain.weather.WeatherData
 import com.example.weatherapp.domain.weather.WeatherInfo
-import kotlinx.coroutines.flow.collect
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -54,7 +53,9 @@ import kotlin.math.roundToInt
 @SuppressLint("SimpleDateFormat")
 @Composable
 fun TodayCard(weatherData: WeatherInfo?) {
-    val lazyListState = rememberLazyListState(LocalDateTime.now().toLocalTime().hour )
+    val time = LocalDateTime.now().toLocalTime().hour
+    val lazyListState = rememberLazyListState(time)
+    var lastScrollState by remember { mutableStateOf(false) }
 
     val formatter = SimpleDateFormat("MMM,dd")
     val currentDate = Calendar.getInstance().time
@@ -65,7 +66,10 @@ fun TodayCard(weatherData: WeatherInfo?) {
             modifier = Modifier
                 .requiredHeight(217.dp)
                 .requiredWidth(343.dp)
-                .clip(shape = RoundedCornerShape(20.dp)),
+                .clip(shape = RoundedCornerShape(20.dp))
+                .clickable {
+                    lastScrollState = true
+                },
             colors = CardDefaults.cardColors(containerColor = Color(0xff001026).copy(alpha = 0.3f))
         ) {
             Column(
@@ -85,6 +89,7 @@ fun TodayCard(weatherData: WeatherInfo?) {
                         modifier = Modifier.padding(start = 16.dp, top = 14.dp),
                         color = Color.White
                     )
+//                    if (lazyListState.firstVisibleItemIndex != time)
                     Text(
                         text = formattedDate,
                         fontWeight = FontWeight(400),
@@ -93,14 +98,12 @@ fun TodayCard(weatherData: WeatherInfo?) {
                         color = Color.White
                     )
                 }
-//                LaunchedEffect(lazyListState) {
-//                    snapshotFlow {
-//                        lazyListState.firstVisibleItemIndex
-//                    }.collect {
-//                    }
-////        lazyListState.scrollToItem(LocalDateTime.now().toLocalTime().hour - 1)
-//                    println("Index at: ${lazyListState.firstVisibleItemIndex}")
-//                }
+                LaunchedEffect(lastScrollState) {
+                    snapshotFlow { lazyListState }.collect {
+                        lazyListState.scrollToItem(time)
+                        lastScrollState = false
+                    }
+                }
                 LazyRow(
                     modifier = Modifier.padding(13.dp),
                     horizontalArrangement = Arrangement.spacedBy(13.dp),
