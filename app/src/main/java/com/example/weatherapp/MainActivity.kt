@@ -35,7 +35,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.presentation.TodayCard
@@ -145,9 +144,12 @@ fun WeatherScreen(
                         verticalAlignment = CenterVertically,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Frame(text = "${data.currentWeatherData.pressure }%", id = R.drawable.rain)
                         Frame(
-                            text = "${data.currentWeatherData.rain}%",
+                            text = "${data.rainAverage[0]}%",
+                            id = R.drawable.rain
+                        )
+                        Frame(
+                            text = "${data.currentWeatherData.humidity}%",
                             id = R.drawable.humidity
                         )
                         Frame(
@@ -157,84 +159,9 @@ fun WeatherScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                TodayCard()
+                TodayCard(state.weatherInfo)
                 Spacer(modifier = Modifier.weight(1f))
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WeatherAppPrev() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.linearGradient(
-                    0f to Color(0xff08244f),
-                    0.3f to Color(0xff0f3f92),
-                    0.47f to Color(0xff134cb5),
-                    1f to Color(0xff0b42ab),
-                    1f to Color(0xff0b42ab),
-                    start = Offset(0f, 0f),
-                    end = Offset.Infinite
-                )
-            )
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_cloudy),
-                contentDescription = null,
-                contentScale = ContentScale.Inside,
-                modifier = Modifier
-                    .width(200.dp)
-                    .padding(top = 59.dp)
-            )
-            Text(
-                text = "20°",
-                fontSize = 60.sp,
-                color = Color.White,
-                fontWeight = FontWeight(600),
-                textAlign = TextAlign.Center,
-//                modifier = Modifier.padding(80.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-
-//                modifier = Modifier.padding(80.dp)
-            Text(
-                text = "Precipitations",
-                fontSize = 18.sp,
-                color = Color.White,
-                fontWeight = FontWeight(400),
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Box(
-                modifier = Modifier
-                    .width(343.dp)
-                    .height(47.dp)
-                    .background(
-                        color = Color(0xff001026).copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(size = 20.dp)
-                    )
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = CenterVertically,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Frame(text = "6%", id = R.drawable.rain)
-                    Frame(text = "90%", id = R.drawable.humidity)
-                    Frame(text = "19 km/h", id = R.drawable.wind)
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            TodayCard()
-            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

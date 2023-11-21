@@ -1,5 +1,6 @@
 package com.example.weatherapp.data.mappers
 
+import com.example.weatherapp.data.remote.Daily
 import com.example.weatherapp.data.remote.WeatherDataDto
 import com.example.weatherapp.data.remote.WeatherDto
 import com.example.weatherapp.domain.weather.WeatherData
@@ -43,8 +44,19 @@ fun WeatherDataDto.toWeatherDataMap(): Map<Int, List<WeatherData>> {
     }
 }
 
+fun Daily.toDailyRain(): Map<Int, Double> {
+
+    val rain = mutableMapOf<Int, Double>()
+    var index = 0
+    rainSum.map { data ->
+        rain [index++]= data
+    }
+    return rain
+}
+
 fun WeatherDto.toWeatherInfo(): WeatherInfo {
     val weatherDateMap = weatherData.toWeatherDataMap()
+    val rain = daily.toDailyRain()
     val now: LocalDateTime = LocalDateTime.now()
     val currentWeatherData = weatherDateMap[0]?.find {
         val hour = if (now.minute < 30) now.hour else now.hour.plus(1)
@@ -52,6 +64,7 @@ fun WeatherDto.toWeatherInfo(): WeatherInfo {
     }
     return WeatherInfo(
         currentWeatherData = currentWeatherData,
-        weatherDatePerDay = weatherDateMap
+        weatherDatePerDay = weatherDateMap,
+        rainAverage = rain
     )
 }

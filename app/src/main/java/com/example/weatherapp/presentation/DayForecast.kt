@@ -1,5 +1,7 @@
 package com.example.weatherapp.presentation
 
+import android.annotation.SuppressLint
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,11 +16,21 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,51 +42,78 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.weatherapp.R
+import com.example.weatherapp.domain.weather.WeatherData
+import com.example.weatherapp.domain.weather.WeatherInfo
+import kotlinx.coroutines.flow.collect
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import kotlin.math.roundToInt
 
 
+@SuppressLint("SimpleDateFormat")
 @Composable
-fun TodayCard() {
-    Card(
-        modifier = Modifier
-            .requiredHeight(217.dp)
-            .requiredWidth(343.dp)
-            .clip(shape = RoundedCornerShape(20.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color(0xff001026).copy(alpha = 0.3f))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.Start,
-//            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Today",
-                    textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight(700),
-                    modifier = Modifier.padding(start = 16.dp, top = 14.dp),
-                    color = Color.White
-                )
-                Text(
-                    text = "Mar,9",
-                    fontWeight = FontWeight(400),
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(end = 18.dp, top = 14.dp),
-                    color = Color.White
-                )
-            }
-            Row(
-                modifier = Modifier.padding(13.dp),
-                horizontalArrangement = Arrangement.spacedBy(13.dp)
-            ) {
-                HourlyWeather()
-                HourlyWeather(true)
-                HourlyWeather()
-                HourlyWeather()
+fun TodayCard(weatherData: WeatherInfo?) {
+    val lazyListState = rememberLazyListState(LocalDateTime.now().toLocalTime().hour )
 
+    val formatter = SimpleDateFormat("MMM,dd")
+    val currentDate = Calendar.getInstance().time
+    val formattedDate = formatter.format(currentDate)
+
+    weatherData?.weatherDatePerDay?.get(0).let { data ->
+        Card(
+            modifier = Modifier
+                .requiredHeight(217.dp)
+                .requiredWidth(343.dp)
+                .clip(shape = RoundedCornerShape(20.dp)),
+            colors = CardDefaults.cardColors(containerColor = Color(0xff001026).copy(alpha = 0.3f))
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.Start,
+//            verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Today",
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight(700),
+                        modifier = Modifier.padding(start = 16.dp, top = 14.dp),
+                        color = Color.White
+                    )
+                    Text(
+                        text = formattedDate,
+                        fontWeight = FontWeight(400),
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(end = 18.dp, top = 14.dp),
+                        color = Color.White
+                    )
+                }
+//                LaunchedEffect(lazyListState) {
+//                    snapshotFlow {
+//                        lazyListState.firstVisibleItemIndex
+//                    }.collect {
+//                    }
+////        lazyListState.scrollToItem(LocalDateTime.now().toLocalTime().hour - 1)
+//                    println("Index at: ${lazyListState.firstVisibleItemIndex}")
+//                }
+                LazyRow(
+                    modifier = Modifier.padding(13.dp),
+                    horizontalArrangement = Arrangement.spacedBy(13.dp),
+                    state = lazyListState,
+                ) {
+                    items(
+                        items = data ?: listOf(),
+                    ) { weather ->
+                        HourlyWeather(
+                            currentWeatherData = weather,
+                        )
+                    }
+                }
             }
         }
     }
@@ -82,10 +121,13 @@ fun TodayCard() {
 
 
 @Composable
-fun HourlyWeather(
-    isNow: Boolean = false,
-
-    ) {
+fun HourlyWeather(currentWeatherData: WeatherData) {
+    val formattedTime = remember(currentWeatherData) {
+        currentWeatherData.time.format(
+            DateTimeFormatter.ofPattern("HH:mm")
+        )
+    }
+    val isNow = LocalDateTime.now().toLocalTime().hour == currentWeatherData.time.hour
     Box(
         modifier = Modifier
             .width(70.dp)
@@ -103,7 +145,7 @@ fun HourlyWeather(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "24°C",
+                text = currentWeatherData.temperatureCelsius.roundToInt().toString() + "°C",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight(400),
@@ -112,13 +154,13 @@ fun HourlyWeather(
                 modifier = Modifier.padding(end = 18.dp, start = 14.dp)
             )
             Image(
-                painter = painterResource(id = R.drawable.ic_heavysnow),
+                painter = painterResource(id = currentWeatherData.weatherType.iconRes),
                 contentDescription = null,
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.size(43.dp)
             )
             Text(
-                text = "16.00",
+                text = formattedTime,
                 style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight(400),
