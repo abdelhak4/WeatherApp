@@ -61,6 +61,12 @@ fun TodayCard(weatherData: WeatherInfo?) {
     val currentDate = Calendar.getInstance().time
     val formattedDate = formatter.format(currentDate)
 
+    LaunchedEffect(lastScrollState) {
+        snapshotFlow { lazyListState }.collect {
+            lazyListState.scrollToItem(time)
+            lastScrollState = false
+        }
+    }
     weatherData?.weatherDatePerDay?.get(0).let { data ->
         Card(
             modifier = Modifier
@@ -98,12 +104,7 @@ fun TodayCard(weatherData: WeatherInfo?) {
                         color = Color.White
                     )
                 }
-                LaunchedEffect(lastScrollState) {
-                    snapshotFlow { lazyListState }.collect {
-                        lazyListState.scrollToItem(time)
-                        lastScrollState = false
-                    }
-                }
+
                 LazyRow(
                     modifier = Modifier.padding(13.dp),
                     horizontalArrangement = Arrangement.spacedBy(13.dp),
