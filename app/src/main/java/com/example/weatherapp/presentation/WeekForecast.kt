@@ -13,12 +13,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
 import com.example.weatherapp.data.mappers.DaysWeather
 import com.example.weatherapp.domain.weather.WeatherInfo
+import kotlin.math.roundToInt
 
 //@Preview(showSystemUi = true)
 @Composable
@@ -74,7 +76,7 @@ fun NextForecast(weatherInfo: WeatherInfo?) {
                         )
                     )
                     Image(
-                        imageVector = Icons.Rounded.LocationOn,
+                        imageVector = Icons.Rounded.CalendarMonth,
                         contentDescription = "image description",
                         contentScale = ContentScale.None
                     )
@@ -100,7 +102,8 @@ fun DayForecast(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = data!!.day,
@@ -118,19 +121,21 @@ fun DayForecast(
         )
 
         Image(
-            painter = painterResource(id = R.drawable.rain),
+            painter = painterResource(id = data.weatherType.iconRes),
             contentDescription = "image description",
-            contentScale = ContentScale.Crop
+            modifier = Modifier.size(43.dp)
+//            contentScale = ContentScale.Crop
         )
-        TextField()
+        TextField(data.maxTemp.roundToInt().toString(), data.minTemp.roundToInt().toString())
     }
 }
 
 
 @Composable
-fun TextField() {
+fun TextField(maxTemp: String, minTemp: String) {
     Row(
-        modifier = Modifier.padding(end = 12.dp)
+        modifier = Modifier.padding(end = 12.dp),
+        horizontalArrangement = Arrangement.Center
     ) {
 
         Box(
@@ -139,7 +144,7 @@ fun TextField() {
                 .requiredHeight(height = 30.dp)
         ) {
             Text(
-                text = "21",
+                text = maxTemp,
                 color = Color.White,
                 style = TextStyle(
                     fontSize = 18.sp,
@@ -156,7 +161,7 @@ fun TextField() {
                 modifier = Modifier
                     .align(alignment = Alignment.TopStart)
                     .offset(
-                        x = 18.dp,
+                        x = if (maxTemp.length >= 2) 20.dp else 10.dp,
                         y = 3.dp
                     )
             )
@@ -166,10 +171,11 @@ fun TextField() {
         Box(
             modifier = Modifier
                 .requiredWidth(width = 30.dp)
-                .requiredHeight(height = 30.dp)
+                .requiredHeight(height = 30.dp),
+            contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                text = "21",
+                text = minTemp,
                 style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
@@ -179,15 +185,15 @@ fun TextField() {
             Text(
                 text = "°C",
                 style = TextStyle(
-                    fontSize = 10.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0x80FFFFFF),
                 ),
                 modifier = Modifier
                     .align(alignment = Alignment.TopStart)
                     .offset(
-                        x = 18.dp,
-                        y = 3.dp
+                        x = if (minTemp.length >= 2) 19.dp else 10.dp,
+                        y = 4.dp
                     )
                     .padding(end = 12.dp)
             )

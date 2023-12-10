@@ -7,11 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,7 +39,6 @@ fun WeatherScreen(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
             .background(
                 brush = Brush.linearGradient(
                     0f to Color(0xff08244f),
@@ -46,10 +50,13 @@ fun WeatherScreen(
                     end = Offset.Infinite
                 )
             )
+            .fillMaxSize()
     ) {
         state.weatherInfo?.let { data ->
             Column(
-                modifier = Modifier.fillMaxSize() ,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
@@ -109,8 +116,8 @@ fun WeatherScreen(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 TodayCard(state.weatherInfo)
-                Spacer(modifier = Modifier.padding(top = 25.dp))
                 NextForecast(state.weatherInfo)
+                Spacer(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars))
             }
         }
 
